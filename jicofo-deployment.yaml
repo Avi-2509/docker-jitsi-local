@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-resolved.yaml
+    kompose.version: 1.30.0 (9d8dcb518)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: jicofo
+  name: jicofo
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: jicofo
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose-resolved.yaml
+        kompose.version: 1.30.0 (9d8dcb518)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/docker-jitsi-meet-default: "true"
+        io.kompose.service: jicofo
+    spec:
+      containers:
+        - env:
+            - name: JICOFO_AUTH_PASSWORD
+              value: "12345"
+            - name: SENTRY_DSN
+              value: '"0"'
+            - name: TZ
+              value: UTC
+            - name: XMPP_SERVER
+              value: prosody
+          image: jitsi/jicofo:stable-8922
+          name: jicofo
+          resources: {}
+      restartPolicy: Always
+status: {}

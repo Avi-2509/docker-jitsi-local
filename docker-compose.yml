@@ -6,12 +6,8 @@ services:
         image: jitsi/web:${JITSI_IMAGE_VERSION:-unstable}
         restart: ${RESTART_POLICY:-unless-stopped}
         ports:
-            - '${HTTP_PORT}:80'
-            - '${HTTPS_PORT}:443'
-        volumes:
-            - ${CONFIG}/web:/config:Z
-            - ${CONFIG}/web/crontabs:/var/spool/cron/crontabs:Z
-            - ${CONFIG}/transcripts:/usr/share/jitsi-meet/transcripts:Z
+            - '${HTTP_PORT}'
+            - '${HTTPS_PORT}'
         environment:
             - AMPLITUDE_ID
             - ANALYTICS_SCRIPT_URLS
@@ -156,20 +152,15 @@ services:
             - XMPP_PORT
             - WHITEBOARD_ENABLED
             - WHITEBOARD_COLLAB_SERVER_PUBLIC_URL
-        networks:
-            meet.jitsi:
 
     # XMPP server
     prosody:
         image: jitsi/prosody:${JITSI_IMAGE_VERSION:-unstable}
         restart: ${RESTART_POLICY:-unless-stopped}
         expose:
-            - '${XMPP_PORT:-5222}'
+            - '5222'
             - '5347'
             - '5280'
-        volumes:
-            - ${CONFIG}/prosody/config:/config:Z
-            - ${CONFIG}/prosody/prosody-plugins-custom:/prosody-plugins-custom:Z
         environment:
             - AUTH_TYPE
             - DISABLE_POLLS
@@ -257,19 +248,11 @@ services:
             - XMPP_INTERNAL_MUC_MODULES
             - XMPP_RECORDER_DOMAIN
             - XMPP_PORT
-        networks:
-            meet.jitsi:
-                aliases:
-                    - ${XMPP_SERVER:-xmpp.meet.jitsi}
 
     # Focus component
     jicofo:
         image: jitsi/jicofo:${JITSI_IMAGE_VERSION:-unstable}
         restart: ${RESTART_POLICY:-unless-stopped}
-        ports:
-            - '127.0.0.1:${JICOFO_REST_PORT:-8888}:8888'
-        volumes:
-            - ${CONFIG}/jicofo:/config:Z
         environment:
             - AUTH_TYPE
             - BRIDGE_AVG_PARTICIPANT_STRESS
@@ -326,20 +309,16 @@ services:
             - XMPP_RECORDER_DOMAIN
             - XMPP_SERVER
             - XMPP_PORT
-        depends_on:
-            - prosody
-        networks:
-            meet.jitsi:
 
     # Video bridge
     jvb:
         image: jitsi/jvb:${JITSI_IMAGE_VERSION:-unstable}
         restart: ${RESTART_POLICY:-unless-stopped}
         ports:
-            - '${JVB_PORT:-10000}:${JVB_PORT:-10000}/udp'
-            - '127.0.0.1:${JVB_COLIBRI_PORT:-8080}:8080'
-        volumes:
-            - ${CONFIG}/jvb:/config:Z
+            - '${JVB_PORT}'
+            - '${JVB_TCP_PORT}'
+        expose:
+            - '9090'
         environment:
             - DOCKER_HOST_ADDRESS
             - ENABLE_COLIBRI_WEBSOCKET
@@ -374,11 +353,3 @@ services:
             - XMPP_INTERNAL_MUC_DOMAIN
             - XMPP_SERVER
             - XMPP_PORT
-        depends_on:
-            - prosody
-        networks:
-            meet.jitsi:
-
-# Custom network so all services can communicate using a FQDN
-networks:
-    meet.jitsi:

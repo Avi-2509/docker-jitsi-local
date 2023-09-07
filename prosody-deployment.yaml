@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-resolved.yaml
+    kompose.version: 1.30.0 (9d8dcb518)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: prosody
+  name: prosody
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: prosody
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose-resolved.yaml
+        kompose.version: 1.30.0 (9d8dcb518)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/docker-jitsi-meet-default: "true"
+        io.kompose.service: prosody
+    spec:
+      containers:
+        - env:
+            - name: JIBRI_RECORDER_PASSWORD
+              value: "12345"
+            - name: JIBRI_XMPP_PASSWORD
+              value: "12345"
+            - name: JICOFO_AUTH_PASSWORD
+              value: "12345"
+            - name: JIGASI_XMPP_PASSWORD
+              value: "12345"
+            - name: JVB_AUTH_PASSWORD
+              value: "12345"
+            - name: PUBLIC_URL
+              value: https://meet-local.lybl.com
+            - name: TZ
+              value: UTC
+          image: jitsi/prosody:stable-8922
+          name: prosody
+          ports:
+            - containerPort: 5222
+              hostPort: 5222
+              protocol: TCP
+            - containerPort: 5347
+              hostPort: 5347
+              protocol: TCP
+            - containerPort: 5280
+              hostPort: 5280
+              protocol: TCP
+          resources: {}
+      restartPolicy: Always
+status: {}
